@@ -1,6 +1,28 @@
 import numpy as np
 
-from utils import encode_action, decode_action
+
+class Translator(object):
+
+    def __init__(self, values):
+        self.encoders, self.decoders = dict(), dict()
+        for v, c in zip(values, range(len(values))):
+            self.encoders[v] = c
+            self.decoders[c] = v
+
+    def encode(self, value):
+        if value in self.encoders.keys():
+            return self.encoders[value]
+        else:
+            raise ValueError("Requested value {} is not found".format(value))
+
+    def decode(self, encoded_value):
+        if encoded_value in self.decoders.keys():
+            return self.decoders[encoded_value]
+        else:
+            raise ValueError(
+                "Requested value {} to be decoded is not found".format(
+                    encoded_value)
+            )
 
 
 class QTable(object):
