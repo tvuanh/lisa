@@ -27,9 +27,9 @@ class Translator(object):
 
 class QTable(object):
 
-    def __init__(self, actions, states, gamma=1., minvisits=10):
-        self.actions_translator = Translator(actions)
+    def __init__(self, states, actions, gamma=1., minvisits=10):
         self.states_translator = Translator(states)
+        self.actions_translator = Translator(actions)
         # discount factor
         self.gamma = gamma
         # min number of visits per state-action
@@ -66,28 +66,16 @@ class QTable(object):
         future_reward = reward + self.gamma * np.max(
             self.Qmean[encoded_next_state, :])
         # update mean, sum squared rewards and variance in exact order
-        self.update_mean(encoded_state, encoded_action, future_reward)
-        self.update_sum_squared_rewards(
-            encoded_state, encoded_action, future_reward)
-        self.update_variance(encoded_state, encoded_action)
-        self.visits[encoded_state, encoded_action] += 1
+        self.update_tables(encoded_state, encoded_action, future_reward)
 
-    def update_mean(self, state, action, future_reward):
-        encoded_state = self.states_translator.encode(state)
-        encoded_action = self.actions_translator.encode(action)
+    def update_tables(self, encoded_state, encoded_action, future_reward):
         visits = self.visits[encoded_state, encoded_action]
         Qm = self.Qmean[encoded_state, encoded_action]
+        # update mean
         self.Qmean[encoded_state, encoded_action] += (future_reward - Qm) / visits
-
-    def update_sum_squared_rewards(self, state, action, future_reward):
-        encoded_state = self.states_translator.encode(state)
-        encoded_action = self.actions_translator.encode(action)
+        # update sum squared rewards
         self.Sr2[encoded_state, encoded_action] += future_reward * future_reward
-
-    def update_variance(self, state, action):
-        encoded_state = self.states_translator.encode(state)
-        encoded_action = self.actions_translator.encode(action)
-        visits = self.visits[encoded_state, encoded_action]
+        # update the variance
         if visits > 1:
             sr2 = self.Sr2[encoded_state, encoded_action]
             Qm = self.Qmean[encoded_state, encoded_action]
@@ -95,6 +83,8 @@ class QTable(object):
                 (sr2 - visits * Qm * Qm) / (visits - 1),
                 np.inf
             )
+        # update the visits counter
+        self.visits[encoded_state, encoded_action] += 1
 
     def action_from_values(self, values):
         maxQstate = np.max(values)
