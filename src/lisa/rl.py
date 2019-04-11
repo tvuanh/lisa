@@ -36,8 +36,11 @@ class QTable(object):
         self.minvisits = minvisits
         # Q(state, action) sample mean value
         self.Qmean = np.zeros(
-            (len(self.states_translator), len(self.actions_translator))
-            ) # state-rows, action-columns
+            (
+                len(self.states_translator.encoders),
+                len(self.actions_translator.encoders)
+            )
+        ) # state-rows, action-columns
         # number of visits per state-action
         self.visits = np.ones(self.Qmean.shape)
         # sum of squared future rewards
@@ -46,8 +49,8 @@ class QTable(object):
         self.Qvar = np.ones(self.Qmean.shape) * np.inf
 
     def predict(self, state):
-        encoded_state = states_translator(state)
-        encoded_actions = self.actions_translator.encoders.values()
+        encoded_state = self.states_translator.encode(state)
+        encoded_actions = list(self.actions_translator.encoders.values())
         visits = self.visits[encoded_state, :]
         if np.min(visits) < self.minvisits:
             encoded_action = np.random.choice(encoded_actions)
@@ -79,7 +82,7 @@ class QTable(object):
         if visits > 1:
             sr2 = self.Sr2[encoded_state, encoded_action]
             Qm = self.Qmean[encoded_state, encoded_action]
-            self.Qvar[state, action] = min(
+            self.Qvar[encoded_state, encoded_action] = min(
                 (sr2 - visits * Qm * Qm) / (visits - 1),
                 np.inf
             )
