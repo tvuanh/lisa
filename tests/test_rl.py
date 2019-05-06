@@ -35,23 +35,229 @@ class TestTranslator(unittest.TestCase):
 class TestQTable(unittest.TestCase):
 
     def setUp(self):
-        states = (0, 1, 2)
+        states = ("a", "b", "c")
         actions = ("left", "right")
         self.table = rl.QTable(states, actions, gamma=1.0, minvisits=10)
         self.shape = (len(states), len(actions))
 
+    def assertTable(self, table, expected_Qmean, expected_visits, expected_Sr2,
+                    expected_Qvar):
+        np.testing.assert_array_equal(table.Qmean, expected_Qmean)
+        np.testing.assert_array_equal(table.visits, expected_visits)
+        np.testing.assert_array_equal(table.Sr2, expected_Sr2)
+        np.testing.assert_array_equal(table.Qvar, expected_Qvar)
+
     def test_QTable_init(self):
         expected_Qmean = np.zeros(self.shape)
-        np.testing.assert_array_equal(self.table.Qmean, expected_Qmean)
-
         expected_visits = np.ones(self.shape)
-        np.testing.assert_array_equal(self.table.visits, expected_visits)
-
         expected_Sr2 = np.zeros(self.shape)
-        np.testing.assert_array_equal(self.table.Sr2, expected_Sr2)
-
         expected_Qvar = np.ones(self.shape) * np.inf
-        np.testing.assert_array_equal(self.table.Qvar, expected_Qvar)
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+    def test_QTable_fit(self):
+        #
+        self.table.fit(state="a", action="left", reward=10.0, next_state="b")
+        expected_Qmean = np.array(
+            [
+                [10., 0.],
+                [0., 0.],
+                [0., 0.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [2, 1],
+                [1, 1],
+                [1, 1],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [100., 0.],
+                [0., 0.],
+                [0., 0.],
+            ]
+        )
+        expected_Qvar = np.ones(self.shape) * np.inf
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+        #
+        self.table.fit(state="b", action="left", reward=10.0, next_state="c")
+        expected_Qmean = np.array(
+            [
+                [10., 0.],
+                [10., 0.],
+                [0., 0.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [2, 1],
+                [2, 1],
+                [1, 1],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [100., 0.],
+                [100., 0.],
+                [0., 0.],
+            ]
+        )
+        expected_Qvar = np.ones(self.shape) * np.inf
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+        #
+        self.table.fit(state="c", action="left", reward=10.0, next_state="a")
+        expected_Qmean = np.array(
+            [
+                [10., 0.],
+                [10., 0.],
+                [20., 0.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [2, 1],
+                [2, 1],
+                [2, 1],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [100., 0.],
+                [100., 0.],
+                [400., 0.],
+            ]
+        )
+        expected_Qvar = np.ones(self.shape) * np.inf
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+        #
+        self.table.fit(state="a", action="right", reward=-5.0, next_state="b")
+        expected_Qmean = np.array(
+            [
+                [10., 5.],
+                [10., 0.],
+                [20., 0.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [2, 2],
+                [2, 1],
+                [2, 1],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [100., 25.],
+                [100., 0.],
+                [400., 0.],
+            ]
+        )
+        expected_Qvar = np.ones(self.shape) * np.inf
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+        #
+        self.table.fit(state="b", action="right", reward=-5.0, next_state="c")
+        expected_Qmean = np.array(
+            [
+                [10., 5.],
+                [10., 15.],
+                [20., 0.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [2, 2],
+                [2, 2],
+                [2, 1],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [100., 25.],
+                [100., 225.],
+                [400., 0.],
+            ]
+        )
+        expected_Qvar = np.ones(self.shape) * np.inf
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+        #
+        self.table.fit(state="c", action="right", reward=-5.0, next_state="a")
+        expected_Qmean = np.array(
+            [
+                [10., 5.],
+                [10., 15.],
+                [20., 5.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [2, 2],
+                [2, 2],
+                [2, 2],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [100., 25.],
+                [100., 225.],
+                [400., 25.],
+            ]
+        )
+        expected_Qvar = np.ones(self.shape) * np.inf
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
+
+        #
+        self.table.fit(state="a", action="left", reward=10.0, next_state="b")
+        expected_Qmean = np.array(
+            [
+                [17.5, 5.],
+                [10., 15.],
+                [20., 5.],
+            ]
+        )
+        expected_visits = np.array(
+            [
+                [3, 2],
+                [2, 2],
+                [2, 2],
+            ]
+        )
+        expected_Sr2 = np.array(
+            [
+                [725., 25.],
+                [100., 225.],
+                [400., 25.],
+            ]
+        )
+        expected_Qvar = np.array(
+            [
+                [112.5, np.inf],
+                [np.inf, np.inf],
+                [np.inf, np.inf],
+            ]
+        )
+        self.assertTable(
+            self.table, expected_Qmean, expected_visits, expected_Sr2,
+            expected_Qvar)
 
 
 class TestIntegration(unittest.TestCase):
