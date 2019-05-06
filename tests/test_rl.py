@@ -59,33 +59,7 @@ def play_copy_v0(episodes=3000):
        [(i, j, k) for i in (0, 1) for j in (0, 1) for k in range(5)]
    )
    Qtable = rl.QTable(states=states, actions=actions, gamma=0.8)
-
-   performance = deque(maxlen=100)
-   performance.append(0.)
-
-   episode = 0
-   while episode < episodes and np.mean(performance) < 25.:
-       episode += 1
-       state = env.reset()
-
-       steps, rewards, done = 0, [], False
-       while not done:
-           steps += 1
-           action = Qtable.predict(state)
-           next_state, reward, done, _ = env.step(action)
-            # use shifted reward to update the Q table
-           Qtable.fit(state, action, reward + 0.5, next_state)
-           rewards.append(reward)
-           state = next_state
-       performance.append(np.sum(rewards))
-       # print(
-       #     "episode {} steps {} rewards {} total {}".format(
-       #         episode, steps, rewards, np.sum(rewards
-       #         )
-       #     )
-       # )
-
-   return episode
+   return execute_game(env, Qtable, episodes, target=25.0)
 
 
 def play_frozen_lake_v0(episodes=1000):
@@ -94,12 +68,14 @@ def play_frozen_lake_v0(episodes=1000):
    states = range(16)
    actions = range(4)
    Qtable = rl.QTable(states=states, actions=actions, gamma=0.8, minvisits=10)
+   return execute_game(env, Qtable, episodes, target=0.78)
 
+
+def execute_game(env, Qtable, episodes, target):
    performance = deque(maxlen=100)
    performance.append(0.)
-
    episode = 0
-   while episode < episodes and np.mean(performance) < 0.78:
+   while episode < episodes and np.mean(performance) < target:
        episode += 1
        state = env.reset()
 
@@ -118,5 +94,4 @@ def play_frozen_lake_v0(episodes=1000):
                )
            )
        )
-
    return episode
