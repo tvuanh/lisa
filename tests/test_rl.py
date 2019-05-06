@@ -268,7 +268,7 @@ class TestIntegration(unittest.TestCase):
         results = np.array([play_copy_v0(episodes) for _ in range(nplays)])
         success = results < episodes
         self.assertTrue(np.sum(success) > 0.7 * nplays)
-        self.assertTrue(np.mean(results[success]) < 1300)
+        self.assertTrue(np.mean(results[success]) < 1400)
 
     def test_integration_frozen_lake_v0(self):
         episodes = 5000
@@ -296,10 +296,10 @@ def play_frozen_lake_v0(episodes=1000):
    states = range(16)
    actions = range(4)
    Qtable = rl.QTable(states=states, actions=actions, gamma=0.8, minvisits=10)
-   return execute_game(env, Qtable, episodes, target=0.78)
+   return execute_game(env, Qtable, episodes, target=0.78, verbose=True)
 
 
-def execute_game(env, Qtable, episodes, target):
+def execute_game(env, Qtable, episodes, target, verbose=False):
    performance = deque(maxlen=100)
    performance.append(0.)
    episode = 0
@@ -316,10 +316,11 @@ def execute_game(env, Qtable, episodes, target):
            rewards.append(reward)
            state = next_state
        performance.append(np.sum(rewards))
-       print(
-           "episode {} steps {} rewards {} total {}".format(
-               episode, steps, rewards, np.sum(rewards
+       if verbose:
+           print(
+               "episode {} steps {} rewards {} total {}".format(
+                   episode, steps, rewards, np.sum(rewards
+                   )
                )
            )
-       )
    return episode
