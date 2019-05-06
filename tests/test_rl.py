@@ -49,7 +49,7 @@ class TestQTable(unittest.TestCase):
 
     def test_QTable_init(self):
         expected_Qmean = np.zeros(self.shape)
-        expected_visits = np.ones(self.shape)
+        expected_visits = np.zeros(self.shape)
         expected_Sr2 = np.zeros(self.shape)
         expected_Qvar = np.ones(self.shape) * np.inf
         self.assertTable(
@@ -68,9 +68,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [2, 1],
-                [1, 1],
-                [1, 1],
+                [1, 0],
+                [0, 0],
+                [0, 0],
             ]
         )
         expected_Sr2 = np.array(
@@ -96,9 +96,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [2, 1],
-                [2, 1],
-                [1, 1],
+                [1, 0],
+                [1, 0],
+                [0, 0],
             ]
         )
         expected_Sr2 = np.array(
@@ -124,9 +124,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [2, 1],
-                [2, 1],
-                [2, 1],
+                [1, 0],
+                [1, 0],
+                [1, 0],
             ]
         )
         expected_Sr2 = np.array(
@@ -152,9 +152,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [2, 2],
-                [2, 1],
-                [2, 1],
+                [1, 1],
+                [1, 0],
+                [1, 0],
             ]
         )
         expected_Sr2 = np.array(
@@ -180,9 +180,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [2, 2],
-                [2, 2],
-                [2, 1],
+                [1, 1],
+                [1, 1],
+                [1, 0],
             ]
         )
         expected_Sr2 = np.array(
@@ -208,9 +208,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [2, 2],
-                [2, 2],
-                [2, 2],
+                [1, 1],
+                [1, 1],
+                [1, 1],
             ]
         )
         expected_Sr2 = np.array(
@@ -236,9 +236,9 @@ class TestQTable(unittest.TestCase):
         )
         expected_visits = np.array(
             [
-                [3, 2],
-                [2, 2],
-                [2, 2],
+                [2, 1],
+                [1, 1],
+                [1, 1],
             ]
         )
         expected_Sr2 = np.array(
@@ -250,7 +250,7 @@ class TestQTable(unittest.TestCase):
         )
         expected_Qvar = np.array(
             [
-                [112.5, np.inf],
+                [56.25, np.inf],
                 [np.inf, np.inf],
                 [np.inf, np.inf],
             ]

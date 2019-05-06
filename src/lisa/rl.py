@@ -42,7 +42,7 @@ class QTable(object):
             )
         ) # state-rows, action-columns
         # number of visits per state-action
-        self.visits = np.ones(self.Qmean.shape)
+        self.visits = np.zeros(self.Qmean.shape)
         # sum of squared future rewards
         self.Sr2 = np.zeros(self.Qmean.shape)
         # Q(state, action) sample variance
@@ -68,10 +68,12 @@ class QTable(object):
         encoded_next_state = self.states_translator.encode(next_state)
         future_reward = reward + self.gamma * np.max(
             self.Qmean[encoded_next_state, :])
-        # update mean, sum squared rewards and variance in exact order
+        # update visits, mean, sum squared rewards and variance in exact order
+        # update visits
+        self.visits[encoded_state, encoded_action] += 1
         visits = self.visits[encoded_state, encoded_action]
-        Qm = self.Qmean[encoded_state, encoded_action]
         # update mean
+        Qm = self.Qmean[encoded_state, encoded_action]
         self.Qmean[encoded_state, encoded_action] += (future_reward - Qm) / visits
         # update sum squared rewards
         self.Sr2[encoded_state, encoded_action] += future_reward * future_reward
@@ -80,11 +82,8 @@ class QTable(object):
             sr2 = self.Sr2[encoded_state, encoded_action]
             Qm = self.Qmean[encoded_state, encoded_action]
             self.Qvar[encoded_state, encoded_action] = min(
-                (sr2 - visits * Qm * Qm) / (visits - 1),
-                np.inf
+                sr2 / visits - Qm * Qm, np.inf
             )
-        # update the visits counter
-        self.visits[encoded_state, encoded_action] += 1
 
     def action_from_values(self, values):
         maxQstate = np.max(values)
