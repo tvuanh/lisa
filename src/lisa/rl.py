@@ -69,9 +69,6 @@ class QTable(object):
         future_reward = reward + self.gamma * np.max(
             self.Qmean[encoded_next_state, :])
         # update mean, sum squared rewards and variance in exact order
-        self.update_tables(encoded_state, encoded_action, future_reward)
-
-    def update_tables(self, encoded_state, encoded_action, future_reward):
         visits = self.visits[encoded_state, encoded_action]
         Qm = self.Qmean[encoded_state, encoded_action]
         # update mean
