@@ -32,6 +32,28 @@ class TestTranslator(unittest.TestCase):
             self.translator.decode(3)
 
 
+class TestQTable(unittest.TestCase):
+
+    def setUp(self):
+        states = (0, 1, 2)
+        actions = ("left", "right")
+        self.table = rl.QTable(states, actions, gamma=1.0, minvisits=10)
+        self.shape = (len(states), len(actions))
+
+    def test_QTable_init(self):
+        expected_Qmean = np.zeros(self.shape)
+        np.testing.assert_array_equal(self.table.Qmean, expected_Qmean)
+
+        expected_visits = np.ones(self.shape)
+        np.testing.assert_array_equal(self.table.visits, expected_visits)
+
+        expected_Sr2 = np.zeros(self.shape)
+        np.testing.assert_array_equal(self.table.Sr2, expected_Sr2)
+
+        expected_Qvar = np.ones(self.shape) * np.inf
+        np.testing.assert_array_equal(self.table.Qvar, expected_Qvar)
+
+
 class TestIntegration(unittest.TestCase):
 
     def test_integration_copy_v0(self):
