@@ -82,7 +82,7 @@ class QTable(object):
             sr2 = self.Sr2[encoded_state, encoded_action]
             Qm = self.Qmean[encoded_state, encoded_action]
             self.Qvar[encoded_state, encoded_action] = min(
-                sr2 / visits - Qm * Qm, np.inf
+                (sr2 - visits * Qm * Qm) / (visits - 1), np.inf
             )
 
     def action_from_values(self, values):
