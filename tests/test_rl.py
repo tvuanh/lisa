@@ -250,7 +250,7 @@ class TestQTable(unittest.TestCase):
         )
         expected_Qvar = np.array(
             [
-                [56.25, np.inf],
+                [112.5, np.inf],
                 [np.inf, np.inf],
                 [np.inf, np.inf],
             ]
@@ -272,11 +272,11 @@ class TestIntegration(unittest.TestCase):
 
     def test_integration_frozen_lake_v0(self):
         episodes = 5000
-        nplays = 1
+        nplays = 20
         results = np.array([play_frozen_lake_v0(episodes) for _ in range(nplays)])
         success = results < episodes
         self.assertTrue(np.sum(success) > 0.7 * nplays)
-        self.assertTrue(np.mean(results[success]) < 1300)
+        self.assertTrue(np.mean(results[success]) < 3700)
 
 
 def play_copy_v0(episodes=3000):
@@ -286,8 +286,8 @@ def play_copy_v0(episodes=3000):
    actions = tuple(
        [(i, j, k) for i in (0, 1) for j in (0, 1) for k in range(5)]
    )
-   Qtable = rl.QTable(states=states, actions=actions, gamma=0.8)
-   return execute_game(env, Qtable, episodes, target=25.0)
+   Qtable = rl.QTable(states=states, actions=actions, gamma=0.8, minvisits=5)
+   return execute_game(env, Qtable, episodes, target=25.0, penalty=0.0)
 
 
 def play_frozen_lake_v0(episodes=1000):
@@ -295,11 +295,11 @@ def play_frozen_lake_v0(episodes=1000):
 
    states = range(16)
    actions = range(4)
-   Qtable = rl.QTable(states=states, actions=actions, gamma=0.8, minvisits=10)
-   return execute_game(env, Qtable, episodes, target=0.78, verbose=True)
+   Qtable = rl.QTable(states=states, actions=actions, gamma=0.9, minvisits=5)
+   return execute_game(env, Qtable, episodes, target=0.78, penalty=10.)
 
 
-def execute_game(env, Qtable, episodes, target, verbose=False):
+def execute_game(env, Qtable, episodes, target, penalty, verbose=False):
    performance = deque(maxlen=100)
    performance.append(0.)
    episode = 0
@@ -312,7 +312,10 @@ def execute_game(env, Qtable, episodes, target, verbose=False):
            steps += 1
            action = Qtable.predict(state)
            next_state, reward, done, _ = env.step(action)
-           Qtable.fit(state, action, reward, next_state)
+           if done and reward <= 0:
+               Qtable.fit(state, action, reward - penalty, next_state)
+           else:
+               Qtable.fit(state, action, reward, next_state)
            rewards.append(reward)
            state = next_state
        performance.append(np.sum(rewards))
