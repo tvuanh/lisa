@@ -39,14 +39,15 @@ class QTable(object):
             (
                 len(self.states_translator.encoders),
                 len(self.actions_translator.encoders)
-            )
+            ),
+            dtype=np.float64
         ) # state-rows, action-columns
         # number of visits per state-action
-        self.visits = np.zeros(self.Qmean.shape)
+        self.visits = np.zeros(self.Qmean.shape, dtype=np.float64)
         # sum of squared future rewards
-        self.Sr2 = np.zeros(self.Qmean.shape)
+        self.Sr2 = np.zeros(self.Qmean.shape, dtype=np.float64)
         # Q(state, action) sample variance
-        self.Qvar = np.ones(self.Qmean.shape) * np.inf
+        self.Qvar = np.ones(self.Qmean.shape, dtype=np.float64) * np.inf
 
     def predict(self, state):
         encoded_state = self.states_translator.encode(state)
