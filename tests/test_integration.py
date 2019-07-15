@@ -27,13 +27,13 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(np.mean(results[success]) < 3700)
 
     def test_integration_frozen_lake_8x8_v0(self):
-        episodes = 10000
+        episodes = 5000
         nplays = 1
         results = np.array(
             [play_frozen_lake_8x8_v0(episodes) for _ in range(nplays)])
         success = results < episodes
         self.assertTrue(np.sum(success) > 0.7 * nplays)
-        self.assertTrue(np.mean(results[success]) < 15000)
+        self.assertTrue(np.mean(results[success]) < 3000)
 
 
 def play_copy_v0(episodes=3000):
@@ -61,8 +61,9 @@ def play_frozen_lake_8x8_v0(episodes=1000):
 
    states = range(64)
    actions = range(4)
-   Qtable = rl.QTable(states=states, actions=actions, gamma=1.0, minvisits=10)
-   return execute_game(env, Qtable, episodes, target=0.5, penalty=10., verbose=True)
+   Qtable = rl.QTable(states=states, actions=actions, gamma=0.9, minvisits=20)
+   return execute_game(
+       env, Qtable, episodes, target=0.5, penalty=10., verbose=True)
 
 
 def execute_game(env, Qtable, episodes, target, penalty, verbose=False):
